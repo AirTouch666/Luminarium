@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ site_name }}</title>
+    {% if site_icon %}
+    <link rel="icon" href="{{ site_icon }}" type="image/x-icon">
+    {% endif %}
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+        .error {
+            color: #e74c3c;
+            background-color: #fadbd8;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .success {
+            color: #2ecc71;
+            background-color: #d5f5e3;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .file-link {
+            word-break: break-all;
+            margin-top: 10px;
+        }
+        .file-link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .file-link a:hover {
+            text-decoration: underline;
+        }
+        #drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            width: calc(100% - 4px);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        #drop-area.highlight {
+            border-color: #3498db;
+            background-color: #ecf0f1;
+        }
+        #file-input {
+            display: none;
+        }
+        #upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #upload-label:hover {
+            background-color: #2980b9;
+        }
+        .uploaded-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-item {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .image-item img {
+            margin-bottom: 10px;
+        }
+
+        .image-item p {
+            margin: 5px 0;
+        }
+
+        .image-item a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .image-item a:hover {
+            text-decoration: underline;
+        }
+
+        .content {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #paste-area {
+            width: 100%;
+            height: 100px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-top: 20px;
+            padding: 10px;
+            text-align: center;
+            cursor: text;
+        }
+
+        #paste-area:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .progress {
+            width: 0;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+            transition: width 0.3s ease-in-out;
+        }
+        
+        #progress-text {
+            margin-top: 5px;
+            text-align: center;
+            color: #333;
+        }
+
+        /* 添加红色进度条样式 */
+        .progress-error {
+            background-color: #e74c3c;
+        }
+
+        /* 新增样式 */
+        .copy-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-button:hover {
+            background-color: #2980b9;
+        }
+        .copied {
+            background-color: #2ecc71;
+        }
+
+        /* 保持现有的样式不变，添加以下新样式 */
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .settings-button:hover {
+            background-color: #2980b9;
+        }
+        .settings-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+            overflow-y: auto; /* 允许整个模态框滚动 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .settings-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: none;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-height: 90vh; /* 设置最大高度 */
+            overflow-y: auto; /* 允许内容滚动 */
+            position: relative; /* 添加相对定位 */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close:hover,
+        .close:focus {
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        .settings-form label {
+            display: block;
+            margin-top: 15px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .settings-form input[type="text"],
+        .settings-form input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .settings-form button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .settings-form button:hover {
+            background-color: #2980b9;
+        }
+        .settings-form button[type="button"] {
+            background-color: #95a5a6;
+            margin-left: 10px;
+        }
+        .settings-form button[type="button"]:hover {
+            background-color: #7f8c8d;
+        }
+
+        /* 美化滚动条样式 */
+        .settings-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .settings-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .settings-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .settings-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <button class="settings-button" id="settingsButton">设置</button>
+    
+    <div id="settingsModal" class="settings-modal">
+        <div class="settings-content">
+            <span class="close">&times;</span>
+            <h2>常规设置</h2>
+            <form id="settingsForm" class="settings-form">
+                <label for="siteName">网站名称：</label>
+                <input type="text" id="siteName" name="site_name" required>
+                
+                <label for="siteIcon">网站图标：</label>
+                <input type="text" id="siteIcon" name="site_icon">
+                
+                <label for="maxFileSize">单个文件上传的最大大小（MB）：</label>
+                <input type="number" id="maxFileSize" name="max_file_size" min="1" required>
+                
+                <label for="allowedExtensions">支持上传的文件类型（用逗号分隔）：</label>
+                <input type="text" id="allowedExtensions" name="allowed_extensions" required>
+                
+                <label for="background">背景设置：</label>
+                <input type="text" id="background" name="background" required>
+                
+                <label for="convertToWebp">需要转换为WebP的文件类型（用逗号分隔）：</label>
+                <input type="text" id="convertToWebp" name="convert_to_webp" required>
+                
+                <label for="domain">网站域名（留空则使用IP地址）：</label>
+                <input type="text" id="domain" name="domain">
+                
+                <button type="submit">保存</button>
+                <button type="button" id="cancelSettings">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content">
+        <h1>{{ site_name }}</h1>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <div id="drop-area" contenteditable="true">
+                <p>拖放文件到这里、粘贴图片或点击选择文件</p>
+                <input type="file" id="file-input" name="file" accept="image/*" multiple>
+                <label for="file-input" id="upload-label">选择文件</label>
+                <div id="upload-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <p id="progress-text">上传进度: 0%</p>
+                </div>
+            </div>
+            <input type="submit" value="上传">
+        </form>
+        
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        
+        {% if success %}
+        <p class="success">文件上传成功！</p>
+        {% for file_url in file_urls %}
+        <p class="file-link">
+            文件链接：<a href="{{ file_url }}" target="_blank">{{ file_url }}</a>
+            <button class="copy-button" data-url="{{ file_url }}">复制链接</button>
+        </p>
+        {% endfor %}
+        {% endif %}
+
+        <h2>已上传的图片</h2>
+        <div class="uploaded-images">
+            {% for file in uploaded_files %}
+                <div class="image-item">
+                    <img src="{{ file.url }}" alt="{{ file.name }}" style="max-width: 200px; max-height: 200px;">
+                    <p>{{ file.name }}</p>
+                    <a href="{{ file.url }}" target="_blank">查看图片</a>
+                    <button class="copy-button" data-url="{{ file.url }}">复制链接</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const uploadForm = document.getElementById('upload-form');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            for (let i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
+            }
+        }
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    uploadFile(fileInput.files[i]);
+                }
+            }
+        });
+
+        dropArea.addEventListener('paste', handlePaste);
+
+        function handlePaste(e) {
+            e.preventDefault();
+            var items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    var blob = items[i].getAsFile();
+                    uploadFile(blob);
+                }
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/', true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+            const progressBar = document.querySelector('.progress');
+            const progressText = document.getElementById('progress-text');
+            const uploadProgress = document.getElementById('upload-progress');
+
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressBar.style.width = percentComplete + '%';
+                    progressText.textContent = '上传进度: ' + percentComplete.toFixed(2) + '%';
+                }
+            };
+
+            xhr.upload.onload = function() {
+                progressBar.style.width = '100%';
+                progressText.textContent = '处理中...';
+            };
+
+            xhr.onload = function() {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 200 && response.success) {
+                        progressText.textContent = '上传成功！';
+                        if (response.file_urls && response.file_urls.length > 0) {
+                            response.file_urls.forEach(fileUrl => {
+                                addCopyButton(fileUrl);
+                            });
+                            setTimeout(() => {
+                                copyToClipboard(response.file_urls[0]);
+                            }, 100);
+                        }
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        progressBar.classList.add('progress-error');
+                        progressText.textContent = '上传失败: ' + (response.error || '未知错误');
+                        setTimeout(() => {
+                            progressBar.style.width = '0';
+                            progressBar.classList.remove('progress-error');
+                            progressText.textContent = '';
+                        }, 3000);
+                    }
+                } catch (e) {
+                    console.log('响应解析失败，但继续处理');
+                    progressText.textContent = '上传成功！';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            };
+
+            xhr.onerror = function() {
+                progressBar.classList.add('progress-error');
+                progressText.textContent = '网络错误，请检查网络连接';
+            };
+
+            uploadProgress.style.display = 'block';
+            xhr.send(formData);
+        }
+
+        // 设置背景
+        (function setBackground() {
+            var body = document.body;
+            var background = JSON.parse('{{ background | tojson | safe }}');
+            if (background.type === 'url' || background.type === 'file') {
+                body.style.backgroundImage = "url('" + background.value + "')";
+                body.style.backgroundSize = "cover";
+                body.style.backgroundAttachment = "fixed";
+            } else {
+                body.style.backgroundColor = background.value;
+            }
+        })();
+
+        // 修改复制到剪贴板的函数
+        function copyToClipboard(text) {
+            // 首先尝试使用 navigator.clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(function() {
+                    console.log('复制成功');
+                }, function(err) {
+                    console.error('复制失败，尝试备用方案: ', err);
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                // 如果 navigator.clipboard 不可用，使用备用方案
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        // 添加备用的复制方法
+        function fallbackCopyToClipboard(text) {
+            // 创建一个临时的 textarea 元素
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            
+            // 设置样式使其不可见
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                // 执行复制命令
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    console.log('使用备用方案复制成功');
+                } else {
+                    console.error('使用备用方案复制失败');
+                }
+            } catch (err) {
+                console.error('复制出错:', err);
+            }
+            
+            // 清理临时元素
+            document.body.removeChild(textArea);
+        }
+
+        // 修改复制按钮的事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyButtons = document.querySelectorAll('.copy-button');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    copyToClipboard(url);
+                    
+                    // 更新按钮状态
+                    this.textContent = '已复制';
+                    this.classList.add('copied');
+                    setTimeout(() => {
+                        this.textContent = '复制链接';
+                        this.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+
+        // 在上传成功后添加复制按钮
+        function addCopyButton(fileUrl) {
+            const fileLink = document.createElement('p');
+            fileLink.className = 'file-link';
+            fileLink.innerHTML = `
+                文件链接：<a href="${fileUrl}" target="_blank">${fileUrl}</a>
+                <button class="copy-button" data-url="${fileUrl}">复制链接</button>
+            `;
+            document.querySelector('.content').insertBefore(fileLink, document.querySelector('.uploaded-images'));
+            
+            // 为新添加的按钮绑定事件
+            const newButton = fileLink.querySelector('.copy-button');
+            newButton.addEventListener('click', function() {
+                copyToClipboard(fileUrl);
+                this.textContent = '已复制';
+                this.classList.add('copied');
+                setTimeout(() => {
+                    this.textContent = '复制链接';
+                    this.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // 设置按钮和模态框
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeButton = settingsModal.querySelector('.close');
+        const cancelButton = document.getElementById('cancelSettings');
+        const settingsForm = document.getElementById('settingsForm');
+
+        // 打开设置模态框
+        settingsButton.onclick = function() {
+            settingsModal.style.display = 'block';
+            loadSettings();
+        }
+
+        // 关闭设置模态框
+        closeButton.onclick = function() {
+            settingsModal.style.display = 'none';
+        }
+
+        cancelButton.onclick = function() {
+            settingsModal.style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target == settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        }
+
+        // 加载设置
+        function loadSettings() {
+            fetch('/get_settings')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('siteName').value = data.site_name;
+                    document.getElementById('siteIcon').value = data.site_icon;
+                    document.getElementById('maxFileSize').value = data.max_file_size;
+                    document.getElementById('allowedExtensions').value = data.allowed_extensions.join(',');
+                    document.getElementById('background').value = data.background;
+                    document.getElementById('convertToWebp').value = data.convert_to_webp.join(',');
+                    document.getElementById('domain').value = data.domain;  // 新增
+                });
+        }
+
+        // 保存设置
+        settingsForm.onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(settingsForm);
+            const settings = Object.fromEntries(formData.entries());
+            settings.allowed_extensions = settings.allowed_extensions.split(',').map(ext => ext.trim());
+            settings.convert_to_webp = settings.convert_to_webp.split(',').map(ext => ext.trim());
+            // domain 字段不需要特殊处理，直接使用字符串值
+
+            fetch('/save_settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('设置已保存');
+                    settingsModal.style.display = 'none';
+                    window.location.reload();
+                } else {
+                    alert('保存设置失败');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
