@@ -1,32 +1,34 @@
 # Luminarium
 
+English | [简体中文](./README-CN.md)
 
-## ⚡️关于
+## ⚡️About
 
-Luminarium 是一个简单的图床，使用 Python 开发，基于 Flask 框架。
+Luminarium is a simple graph bed developed in Python and based on the Flask framework.
 
-## ✨功能
+## ✨Features
 
-- 支持拖放上传和多文件选择
-- 自动将上传的图片转换为 WebP 格式以节省空间
-- 显示所有已上传图片的缩略图和链接
-- 复制链接功能
-- 支持自定义配置
+- Drag-and-drop uploading and multi-file selection
+- Automatically converts uploaded images to WebP format to save space.
+- Show thumbnails and links of all uploaded images.
+- Duplicate links
+- Supports customized configurations
 
-## ⌨️技术
+## ⌨️Technology
 
-- 后端: Python Flask
-- 前端: HTML，CSS，JavaScript
-- 图像处理: Pillow
+- Backend: Python Flask
+- Frontend: HTML, CSS, JavaScript
+- Image Processing: Pillow
+  
+## 🖥Application interface
 
-## 🖥应用界面
-![应用界面](./screenshots/1.png)
-![应用界面](./screenshots/2.png)
+![Application_interface](./screenshots/1.png)
+![Application_Interface](./screenshots/2.png)
 
-## 🤝贡献
+## 🤝Contributions
 
-欢迎提交 Pull Requests 来改进这个项目。对于重大更改，请先开 issue 讨论您想要改变的内容。
+Feel free to submit Pull Requests to improve this project. For major changes, please open an issue first to discuss what you want to change.
 
-## 📜许可证
+## 📜License
 
-本项目基于 MIT 许可证开源，详情见 [LICENSE](./LICENSE) 。
+This project is open source under the MIT license, see [LICENSE](./LICENSE).
