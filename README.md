@@ -19,6 +19,10 @@ Luminarium 是一个简单的图床，使用 Python 开发，基于 Flask 框架
 - 前端: HTML，CSS，JavaScript
 - 图像处理: Pillow
 
+## 🖥应用界面
+![应用界面](./screenshots/1.png)
+![应用界面](./screenshots/2.png)
+
 ## 🤝贡献
 
 欢迎提交 Pull Requests 来改进这个项目。对于重大更改，请先开 issue 讨论您想要改变的内容。
