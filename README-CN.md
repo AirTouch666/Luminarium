@@ -1,5 +1,9 @@
 # Luminarium
 
+![GitHub Release](https://img.shields.io/github/release/AirTouch666/Luminarium)
+![GitHub repo size](https://img.shields.io/github/repo-size/AirTouch666/Luminarium)
+![Docker Build and Push dev](https://github.com/AirTouch666/Luminarium/actions/workflows/docker-build-push-dev.yml/badge.svg)
+
 简体中文 | [English](./README.md)
 
 ## ⚡️关于
