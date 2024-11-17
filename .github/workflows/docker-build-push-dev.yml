@@ -3,6 +3,10 @@ name: Docker Build and Push dev
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "*.md"
+      - "screenshots/**"
+      - "LICENSE"
   pull_request:
     branches: ["main"]
 
