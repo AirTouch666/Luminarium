@@ -19,6 +19,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+def load_languages():
+    with open(os.path.join(base_path, 'languages.json'), 'r', encoding='utf-8') as f:
+        return json.load(f)
+
 def load_or_create_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
@@ -26,14 +30,15 @@ def load_or_create_config():
     else:
         config = {
             'secret_key': secrets.token_hex(16),
-            'port': 8080,  # 端口号
-            'background': '#f4f4f4',  # 背景色
-            'site_name': 'Luminarium',  # 网站名称
-            'site_icon': '',  # 网站图标
-            'max_file_size': 10,  # 最大文件大小
-            'allowed_extensions': ["png", "jpg", "jpeg", "gif", "webp"],  # 允许的文件类型
-            'convert_to_webp': ["png", "jpg", "jpeg"],  # 需要转换为webp的文件类型
-            'domain': ''  # 网站域名
+            'port': 8080,
+            'background': '#f4f4f4',
+            'site_name': 'Luminarium',
+            'site_icon': '',
+            'max_file_size': 10,
+            'allowed_extensions': ["png", "jpg", "jpeg", "gif", "webp"],
+            'convert_to_webp': ["png", "jpg", "jpeg"],
+            'domain': '',
+            'language': 'zh'
         }
         with open(CONFIG_FILE, 'w') as f:
             json.dump(config, f, indent=4)
@@ -49,6 +54,8 @@ MAX_FILE_SIZE = config.get('max_file_size', 10) * 1024 * 1024
 ALLOWED_EXTENSIONS = set(config.get('allowed_extensions', ["png", "jpg", "jpeg", "gif", "webp"]))
 CONVERT_TO_WEBP = set(config.get('convert_to_webp', ["png", "jpg", "jpeg"]))
 DOMAIN = config.get('domain', '')
+LANGUAGES = load_languages()
+CURRENT_LANG = config.get('language', 'zh')
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -181,7 +188,17 @@ def upload_file():
     error = request.args.get('error')
     uploaded_files = get_uploaded_files()
     background = get_background()
-    return render_template('index.html', success=success, file_urls=file_urls, error=error, uploaded_files=uploaded_files, background=background, site_name=SITE_NAME, site_icon=SITE_ICON)
+    return render_template('index.html', 
+                         success=success, 
+                         file_urls=file_urls, 
+                         error=error, 
+                         uploaded_files=uploaded_files, 
+                         background=background, 
+                         site_name=SITE_NAME, 
+                         site_icon=SITE_ICON,
+                         lang=LANGUAGES[CURRENT_LANG], 
+                         current_lang=CURRENT_LANG,    
+                         available_langs=list(LANGUAGES.keys()))
 
 @app.route('/<filename>')
 def uploaded_file(filename):
@@ -230,6 +247,18 @@ def save_settings():
         json.dump(config, f, indent=4)
 
     return jsonify({'success': True})
+
+@app.route('/change_language/<lang>', methods=['POST'])
+def change_language(lang):
+    global CURRENT_LANG
+    if lang in LANGUAGES:
+        CURRENT_LANG = lang
+        config = load_or_create_config()
+        config['language'] = lang
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=4)
+        return jsonify({'success': True})
+    return jsonify({'success': False}), 400
 
 if __name__ == '__main__':
         app.run(host='0.0.0.0', port=PORT, debug=False)
