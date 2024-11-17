@@ -330,7 +330,7 @@
         <select id="languageSelect" style="padding: 8px 15px; border-radius: 20px; border: none; background-color: #3498db; color: white; cursor: pointer; font-size: 14px;">
             {% for lang_code in available_langs %}
             <option value="{{ lang_code }}" {% if lang_code == current_lang %}selected{% endif %}>
-                {{ lang_code.upper() }}
+                {{ LANGUAGES[lang_code].display_name }}
             </option>
             {% endfor %}
         </select>

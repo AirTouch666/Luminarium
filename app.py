@@ -198,7 +198,8 @@ def upload_file():
                          site_icon=SITE_ICON,
                          lang=LANGUAGES[CURRENT_LANG], 
                          current_lang=CURRENT_LANG,    
-                         available_langs=list(LANGUAGES.keys()))
+                         available_langs=list(LANGUAGES.keys()),
+                         LANGUAGES=LANGUAGES)
 
 @app.route('/<filename>')
 def uploaded_file(filename):
