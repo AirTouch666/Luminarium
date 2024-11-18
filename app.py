@@ -38,7 +38,7 @@ def load_or_create_config():
             'allowed_extensions': ["png", "jpg", "jpeg", "gif", "webp"],
             'convert_to_webp': ["png", "jpg", "jpeg"],
             'domain': '',
-            'language': 'zh'
+            'language': 'en'
         }
         with open(CONFIG_FILE, 'w') as f:
             json.dump(config, f, indent=4)
