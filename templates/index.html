@@ -203,17 +203,14 @@
 
         /* 保持现有的样式不变，添加以下新样式 */
         .settings-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 10px 15px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 16px;
             transition: background-color 0.3s;
+            white-space: nowrap; /* 防止文字换行 */
+            min-width: 80px; /* 设置最小宽度确保按钮不会太窄 */
         }
         .settings-button:hover {
             background-color: #2980b9;
@@ -315,39 +312,127 @@
         .settings-content::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        /* 添加语言选择器的悬停效果 */
+        #languageSelect:hover {
+            background-color: #2980b9;
+        }
+
+        /* 确保选择框的选项文字可见 */
+        #languageSelect option {
+            background-color: white;
+            color: #333;
+        }
+
+        .language-selector {
+            position: relative;
+            user-select: none;
+        }
+
+        .current-language {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .current-language:hover {
+            background: #f8f8f8;
+        }
+
+        .arrow {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .language-selector.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .language-options {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+        }
+
+        .language-selector.active .language-options {
+            display: block;
+        }
+
+        .language-option {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .language-option:hover {
+            background: #f8f8f8;
+        }
     </style>
 </head>
 <body>
-    <button class="settings-button" id="settingsButton">设置</button>
+    <div style="position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; align-items: center;">
+        <div class="language-selector">
+            <div class="current-language">
+                {{ LANGUAGES[current_lang].display_name }}
+                <span class="arrow">▼</span>
+            </div>
+            <div class="language-options">
+                {% for lang_code in available_langs %}
+                <div class="language-option" data-lang="{{ lang_code }}">
+                    {{ LANGUAGES[lang_code].display_name }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button class="settings-button" id="settingsButton" style="margin: 0; padding: 8px 15px; font-size: 14px;">{{ lang.settings }}</button>
+    </div>
     
     <div id="settingsModal" class="settings-modal">
         <div class="settings-content">
             <span class="close">&times;</span>
-            <h2>常规设置</h2>
+            <h2>{{ lang.general_settings }}</h2>
             <form id="settingsForm" class="settings-form">
-                <label for="siteName">网站名称：</label>
+                <label for="siteName">{{ lang.site_name }}</label>
                 <input type="text" id="siteName" name="site_name" required>
                 
-                <label for="siteIcon">网站图标：</label>
+                <label for="siteIcon">{{ lang.site_icon }}</label>
                 <input type="text" id="siteIcon" name="site_icon">
                 
-                <label for="maxFileSize">单个文件上传的最大大小（MB）：</label>
+                <label for="maxFileSize">{{ lang.max_file_size }}</label>
                 <input type="number" id="maxFileSize" name="max_file_size" min="1" required>
                 
-                <label for="allowedExtensions">支持上传的文件类型（用逗号分隔）：</label>
+                <label for="allowedExtensions">{{ lang.allowed_extensions }}</label>
                 <input type="text" id="allowedExtensions" name="allowed_extensions" required>
                 
-                <label for="background">背景设置：</label>
+                <label for="background">{{ lang.background_settings }}</label>
                 <input type="text" id="background" name="background" required>
                 
-                <label for="convertToWebp">需要转换为WebP的文件类型（用逗号分隔）：</label>
+                <label for="convertToWebp">{{ lang.convert_webp }}</label>
                 <input type="text" id="convertToWebp" name="convert_to_webp" required>
                 
-                <label for="domain">网站域名（留空则使用IP地址）：</label>
+                <label for="domain">{{ lang.domain_name }}</label>
                 <input type="text" id="domain" name="domain">
                 
-                <button type="submit">保存</button>
-                <button type="button" id="cancelSettings">取消</button>
+                <button type="submit">{{ lang.save }}</button>
+                <button type="button" id="cancelSettings">{{ lang.cancel }}</button>
             </form>
         </div>
     </div>
@@ -356,17 +441,17 @@
         <h1>{{ site_name }}</h1>
         <form id="upload-form" method="post" enctype="multipart/form-data">
             <div id="drop-area" contenteditable="true">
-                <p>拖放文件到这里、粘贴图片或点击选择文件</p>
+                <p>{{ lang.drop_files }}</p>
                 <input type="file" id="file-input" name="file" accept="image/*" multiple>
-                <label for="file-input" id="upload-label">选择文件</label>
+                <label for="file-input" id="upload-label">{{ lang.choose_file }}</label>
                 <div id="upload-progress" style="display: none;">
                     <div class="progress-bar">
                         <div class="progress"></div>
                     </div>
-                    <p id="progress-text">上传进度: 0%</p>
+                    <p id="progress-text">{{ lang.upload_progress }} 0%</p>
                 </div>
             </div>
-            <input type="submit" value="上传">
+            <input type="submit" value="{{ lang.upload }}">
         </form>
         
         {% if error %}
@@ -374,23 +459,23 @@
         {% endif %}
         
         {% if success %}
-        <p class="success">文件上传成功！</p>
+        <p class="success">{{ lang.upload_success }}</p>
         {% for file_url in file_urls %}
         <p class="file-link">
-            文件链接：<a href="{{ file_url }}" target="_blank">{{ file_url }}</a>
-            <button class="copy-button" data-url="{{ file_url }}">复制链接</button>
+            {{ lang.file_link }}: <a href="{{ file_url }}" target="_blank">{{ file_url }}</a>
+            <button class="copy-button" data-url="{{ file_url }}">{{ lang.copy_link }}</button>
         </p>
         {% endfor %}
         {% endif %}
 
-        <h2>已上传的图片</h2>
+        <h2>{{ lang.uploaded_images }}</h2>
         <div class="uploaded-images">
             {% for file in uploaded_files %}
                 <div class="image-item">
                     <img src="{{ file.url }}" alt="{{ file.name }}" style="max-width: 200px; max-height: 200px;">
                     <p>{{ file.name }}</p>
-                    <a href="{{ file.url }}" target="_blank">查看图片</a>
-                    <button class="copy-button" data-url="{{ file.url }}">复制链接</button>
+                    <a href="{{ file.url }}" target="_blank">{{ lang.view_image }}</a>
+                    <button class="copy-button" data-url="{{ file.url }}">{{ lang.copy_link }}</button>
                 </div>
             {% endfor %}
         </div>
@@ -473,20 +558,20 @@
                 if (e.lengthComputable) {
                     const percentComplete = (e.loaded / e.total) * 100;
                     progressBar.style.width = percentComplete + '%';
-                    progressText.textContent = '上传进度: ' + percentComplete.toFixed(2) + '%';
+                    progressText.textContent = '{{ lang.upload_progress }} ' + percentComplete.toFixed(2) + '%';
                 }
             };
 
             xhr.upload.onload = function() {
                 progressBar.style.width = '100%';
-                progressText.textContent = '处理中...';
+                progressText.textContent = '{{ lang.processing }}';
             };
 
             xhr.onload = function() {
                 try {
                     const response = JSON.parse(xhr.responseText);
                     if (xhr.status === 200 && response.success) {
-                        progressText.textContent = '上传成功！';
+                        progressText.textContent = '{{ lang.upload_success }}';
                         if (response.file_urls && response.file_urls.length > 0) {
                             response.file_urls.forEach(fileUrl => {
                                 addCopyButton(fileUrl);
@@ -500,7 +585,7 @@
                         }, 1000);
                     } else {
                         progressBar.classList.add('progress-error');
-                        progressText.textContent = '上传失败: ' + (response.error || '未知错误');
+                        progressText.textContent = '{{ lang.upload_failed }}: ' + (response.error || '未知错误');
                         setTimeout(() => {
                             progressBar.style.width = '0';
                             progressBar.classList.remove('progress-error');
@@ -509,7 +594,7 @@
                     }
                 } catch (e) {
                     console.log('响应解析失败，但继续处理');
-                    progressText.textContent = '上传成功！';
+                    progressText.textContent = '{{ lang.upload_success }}';
                     setTimeout(() => {
                         window.location.reload();
                     }, 1000);
@@ -518,7 +603,7 @@
 
             xhr.onerror = function() {
                 progressBar.classList.add('progress-error');
-                progressText.textContent = '网络错误，请检查网络连接';
+                progressText.textContent = '{{ lang.network_error }}';
             };
 
             uploadProgress.style.display = 'block';
@@ -610,7 +695,7 @@
             const fileLink = document.createElement('p');
             fileLink.className = 'file-link';
             fileLink.innerHTML = `
-                文件链接：<a href="${fileUrl}" target="_blank">${fileUrl}</a>
+                {{ lang.file_link }}: <a href="${fileUrl}" target="_blank">${fileUrl}</a>
                 <button class="copy-button" data-url="${fileUrl}">复制链接</button>
             `;
             document.querySelector('.content').insertBefore(fileLink, document.querySelector('.uploaded-images'));
@@ -691,14 +776,47 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('设置已保存');
+                    alert('{{ lang.settings_saved }}');
                     settingsModal.style.display = 'none';
                     window.location.reload();
                 } else {
-                    alert('保存设置失败');
+                    alert('{{ lang.settings_save_failed }}');
                 }
             });
         }
+
+        // 添加语言选择器的交互代码
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.querySelector('.language-selector');
+            const currentLanguage = document.querySelector('.current-language');
+            
+            // 点击当前语言显示/隐藏选项
+            currentLanguage.addEventListener('click', function(e) {
+                e.stopPropagation();
+                languageSelector.classList.toggle('active');
+            });
+
+            // 点击语言选项切换语言
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const newLang = this.getAttribute('data-lang');
+                    fetch(`/change_language/${newLang}`, {
+                        method: 'POST',
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                    });
+                });
+            });
+
+            // 点击页面其他地方关闭语言选择器
+            document.addEventListener('click', function() {
+                languageSelector.classList.remove('active');
+            });
+        });
     </script>
 </body>
 </html>
