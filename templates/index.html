@@ -323,17 +323,85 @@
             background-color: white;
             color: #333;
         }
+
+        .language-selector {
+            position: relative;
+            user-select: none;
+        }
+
+        .current-language {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .current-language:hover {
+            background: #f8f8f8;
+        }
+
+        .arrow {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .language-selector.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .language-options {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+        }
+
+        .language-selector.active .language-options {
+            display: block;
+        }
+
+        .language-option {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .language-option:hover {
+            background: #f8f8f8;
+        }
     </style>
 </head>
 <body>
     <div style="position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; align-items: center;">
-        <select id="languageSelect" style="padding: 8px 15px; border-radius: 20px; border: none; background-color: #3498db; color: white; cursor: pointer; font-size: 14px;">
-            {% for lang_code in available_langs %}
-            <option value="{{ lang_code }}" {% if lang_code == current_lang %}selected{% endif %}>
-                {{ LANGUAGES[lang_code].display_name }}
-            </option>
-            {% endfor %}
-        </select>
+        <div class="language-selector">
+            <div class="current-language">
+                {{ LANGUAGES[current_lang].display_name }}
+                <span class="arrow">▼</span>
+            </div>
+            <div class="language-options">
+                {% for lang_code in available_langs %}
+                <div class="language-option" data-lang="{{ lang_code }}">
+                    {{ LANGUAGES[lang_code].display_name }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
         <button class="settings-button" id="settingsButton" style="margin: 0; padding: 8px 15px; font-size: 14px;">{{ lang.settings }}</button>
     </div>
     
@@ -717,17 +785,36 @@
             });
         }
 
-        // 添加语言切换处理
-        document.getElementById('languageSelect').addEventListener('change', function() {
-            const newLang = this.value;
-            fetch(`/change_language/${newLang}`, {
-                method: 'POST',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                }
+        // 添加语言选择器的交互代码
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.querySelector('.language-selector');
+            const currentLanguage = document.querySelector('.current-language');
+            
+            // 点击当前语言显示/隐藏选项
+            currentLanguage.addEventListener('click', function(e) {
+                e.stopPropagation();
+                languageSelector.classList.toggle('active');
+            });
+
+            // 点击语言选项切换语言
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const newLang = this.getAttribute('data-lang');
+                    fetch(`/change_language/${newLang}`, {
+                        method: 'POST',
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                    });
+                });
+            });
+
+            // 点击页面其他地方关闭语言选择器
+            document.addEventListener('click', function() {
+                languageSelector.classList.remove('active');
             });
         });
     </script>
