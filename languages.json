@@ -31,7 +31,10 @@
         "upload_failed": "上传失败",
         "network_error": "网络错误，请检查网络连接",
         "processing": "处理中...",
-        "upload_progress": "上传进度: "
+        "upload_progress": "上传进度: ",
+        "delete_image": "删除图片",
+        "confirm_delete": "确定要删除这张图片吗？",
+        "delete_failed": "删除失败"
     },
     "en": {
         "display_name": "English",
@@ -65,7 +68,10 @@
         "upload_failed": "Upload failed",
         "network_error": "Network error, please check your connection",
         "processing": "Processing...",
-        "upload_progress": "Upload progress: "
+        "upload_progress": "Upload progress: ",
+        "delete_image": "Delete Image",
+        "confirm_delete": "Are you sure you want to delete this image?",
+        "delete_failed": "Failed to delete"
     },
     "zh-tw": {
         "display_name": "繁體中文",
@@ -99,7 +105,10 @@
         "upload_failed": "上傳失敗",
         "network_error": "網路錯誤，請檢查網路連線",
         "processing": "處理中...",
-        "upload_progress": "上傳進度: "
+        "upload_progress": "上傳進度: ",
+        "delete_image": "刪除圖片",
+        "confirm_delete": "確定要刪除這張圖片嗎？",
+        "delete_failed": "刪除失敗"
     },
     "ja": {
         "display_name": "日本語",
@@ -133,6 +142,9 @@
         "upload_failed": "アップロードに失敗しました",
         "network_error": "ネットワークエラー、接続を確認してください",
         "processing": "処理中...",
-        "upload_progress": "アップロード進捗: "
+        "upload_progress": "アップロード進捗: ",
+        "delete_image": "画像を削除",
+        "confirm_delete": "この画像を削除してもよろしいですか？",
+        "delete_failed": "削除に失敗しました"
     }
 } 

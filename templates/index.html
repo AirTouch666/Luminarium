@@ -385,6 +385,27 @@
         .language-option:hover {
             background: #f8f8f8;
         }
+
+        .delete-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            color: #e74c3c;
+            transition: color 0.3s ease;
+        }
+
+        .delete-button:hover {
+            color: #c0392b;
+        }
+
+        .delete-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -471,11 +492,16 @@
         <h2>{{ lang.uploaded_images }}</h2>
         <div class="uploaded-images">
             {% for file in uploaded_files %}
-                <div class="image-item">
+                <div class="image-item" id="image-{{ file.name }}">
                     <img src="{{ file.url }}" alt="{{ file.name }}" style="max-width: 200px; max-height: 200px;">
                     <p>{{ file.name }}</p>
                     <a href="{{ file.url }}" target="_blank">{{ lang.view_image }}</a>
                     <button class="copy-button" data-url="{{ file.url }}">{{ lang.copy_link }}</button>
+                    <button class="delete-button" data-filename="{{ file.name }}" title="{{ lang.delete_image }}">
+                        <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                        </svg>
+                    </button>
                 </div>
             {% endfor %}
         </div>
@@ -817,6 +843,46 @@
                 languageSelector.classList.remove('active');
             });
         });
+
+        // 添加删除功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const filename = this.getAttribute('data-filename');
+                    if (confirm('{{ lang.confirm_delete }}')) {
+                        fetch(`/delete_file/${filename}`, {
+                            method: 'POST',
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const imageItem = document.getElementById(`image-${filename}`);
+                                imageItem.style.animation = 'fadeOut 0.3s';
+                                setTimeout(() => {
+                                    imageItem.remove();
+                                }, 300);
+                            } else {
+                                alert('{{ lang.delete_failed }}');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('{{ lang.delete_failed }}');
+                        });
+                    }
+                });
+            });
+        });
+
+        // 添加淡出动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
