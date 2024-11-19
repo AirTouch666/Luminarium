@@ -385,6 +385,126 @@
         .language-option:hover {
             background: #f8f8f8;
         }
+
+        .delete-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            color: #e74c3c;
+            transition: color 0.3s ease;
+        }
+
+        .delete-button:hover {
+            color: #c0392b;
+        }
+
+        .delete-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .bulk-actions {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .bulk-actions.show {
+            display: flex;
+            position: static;
+            margin-left: auto;
+        }
+
+        .bulk-delete-button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .bulk-delete-button:hover {
+            background: #c0392b;
+        }
+
+        .cancel-selection-button {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .cancel-selection-button:hover {
+            background: #7f8c8d;
+        }
+
+        .image-checkbox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-item {
+            position: relative;
+        }
+
+        .image-item:hover .image-checkbox {
+            opacity: 1;
+        }
+
+        .image-item.selected .image-checkbox {
+            opacity: 1;
+        }
+
+        .selected-count {
+            background: #2ecc71;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            height: 20px;
+            line-height: 20px;
+        }
+
+        h2 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -440,10 +560,10 @@
     <div class="content">
         <h1>{{ site_name }}</h1>
         <form id="upload-form" method="post" enctype="multipart/form-data">
-            <div id="drop-area" contenteditable="true">
-                <p>{{ lang.drop_files }}</p>
+            <div id="drop-area">
+                <p style="user-select: none;">{{ lang.drop_files }}</p>
                 <input type="file" id="file-input" name="file" accept="image/*" multiple>
-                <label for="file-input" id="upload-label">{{ lang.choose_file }}</label>
+                <label for="file-input" id="upload-label" style="user-select: none;">{{ lang.choose_file }}</label>
                 <div id="upload-progress" style="display: none;">
                     <div class="progress-bar">
                         <div class="progress"></div>
@@ -451,7 +571,6 @@
                     <p id="progress-text">{{ lang.upload_progress }} 0%</p>
                 </div>
             </div>
-            <input type="submit" value="{{ lang.upload }}">
         </form>
         
         {% if error %}
@@ -468,14 +587,34 @@
         {% endfor %}
         {% endif %}
 
-        <h2>{{ lang.uploaded_images }}</h2>
+        <h2>
+            {{ lang.uploaded_images }}
+            <div class="bulk-actions" id="bulkActions">
+                <span class="selected-count">已选择 0 项</span>
+                <button class="bulk-delete-button" id="bulkDeleteButton">
+                    <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                    </svg>
+                    {{ lang.delete_selected }}
+                </button>
+                <button class="cancel-selection-button" id="cancelSelectionButton">
+                    {{ lang.cancel_selection }}
+                </button>
+            </div>
+        </h2>
         <div class="uploaded-images">
             {% for file in uploaded_files %}
-                <div class="image-item">
+                <div class="image-item" id="image-{{ file.name }}">
+                    <input type="checkbox" class="image-checkbox" data-filename="{{ file.name }}">
                     <img src="{{ file.url }}" alt="{{ file.name }}" style="max-width: 200px; max-height: 200px;">
                     <p>{{ file.name }}</p>
                     <a href="{{ file.url }}" target="_blank">{{ lang.view_image }}</a>
                     <button class="copy-button" data-url="{{ file.url }}">{{ lang.copy_link }}</button>
+                    <button class="delete-button" data-filename="{{ file.name }}" title="{{ lang.delete_image }}">
+                        <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                        </svg>
+                    </button>
                 </div>
             {% endfor %}
         </div>
@@ -812,9 +951,123 @@
                 });
             });
 
-            // 点击页面其他地方关闭语言选择器
+            // 点击页面其他地方关闭语言选器
             document.addEventListener('click', function() {
                 languageSelector.classList.remove('active');
+            });
+        });
+
+        // 添加删除功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const filename = this.getAttribute('data-filename');
+                    if (confirm('{{ lang.confirm_delete }}')) {
+                        fetch(`/delete_file/${filename}`, {
+                            method: 'POST',
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const imageItem = document.getElementById(`image-${filename}`);
+                                imageItem.style.animation = 'fadeOut 0.3s';
+                                setTimeout(() => {
+                                    imageItem.remove();
+                                }, 300);
+                            } else {
+                                alert('{{ lang.delete_failed }}');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('{{ lang.delete_failed }}');
+                        });
+                    }
+                });
+            });
+        });
+
+        // 添加淡出动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 添加批量删除功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const bulkActions = document.getElementById('bulkActions');
+            const bulkDeleteButton = document.getElementById('bulkDeleteButton');
+            const cancelSelectionButton = document.getElementById('cancelSelectionButton');
+            const selectedCountSpan = document.querySelector('.selected-count');
+            const checkboxes = document.querySelectorAll('.image-checkbox');
+            
+            function updateSelectedCount() {
+                const selectedCount = document.querySelectorAll('.image-checkbox:checked').length;
+                selectedCountSpan.textContent = `{{ lang.selected_count }}`.replace('{count}', selectedCount);
+                if (selectedCount > 0) {
+                    bulkActions.classList.add('show');
+                } else {
+                    bulkActions.classList.remove('show');
+                }
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const imageItem = this.closest('.image-item');
+                    if (this.checked) {
+                        imageItem.classList.add('selected');
+                    } else {
+                        imageItem.classList.remove('selected');
+                    }
+                    updateSelectedCount();
+                });
+            });
+
+            bulkDeleteButton.addEventListener('click', function() {
+                const selectedFiles = Array.from(document.querySelectorAll('.image-checkbox:checked'))
+                    .map(checkbox => checkbox.getAttribute('data-filename'));
+                
+                if (selectedFiles.length === 0) return;
+
+                if (confirm('{{ lang.confirm_delete_multiple }}')) {
+                    const deletePromises = selectedFiles.map(filename => 
+                        fetch(`/delete_file/${filename}`, { method: 'POST' })
+                            .then(response => response.json())
+                    );
+
+                    Promise.all(deletePromises)
+                        .then(results => {
+                            const allSuccess = results.every(result => result.success);
+                            if (allSuccess) {
+                                selectedFiles.forEach(filename => {
+                                    const imageItem = document.getElementById(`image-${filename}`);
+                                    imageItem.style.animation = 'fadeOut 0.3s';
+                                    setTimeout(() => {
+                                        imageItem.remove();
+                                    }, 300);
+                                });
+                                bulkActions.classList.remove('show');
+                            } else {
+                                alert('{{ lang.delete_failed }}');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('{{ lang.delete_failed }}');
+                        });
+                }
+            });
+
+            cancelSelectionButton.addEventListener('click', function() {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.closest('.image-item').classList.remove('selected');
+                });
+                bulkActions.classList.remove('show');
             });
         });
     </script>

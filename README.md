@@ -17,7 +17,7 @@ Luminarium is a simple graph bed developed in Python and based on the Flask fram
 - Show thumbnails and links of all uploaded images.
 - Duplicate links
 - Supports customized configurations
-- Multi-language
+- Multi-language(beta)
 
 ## 💽Installation
 

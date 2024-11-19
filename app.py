@@ -261,5 +261,17 @@ def change_language(lang):
         return jsonify({'success': True})
     return jsonify({'success': False}), 400
 
+@app.route('/delete_file/<filename>', methods=['POST'])
+def delete_file(filename):
+    try:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
         app.run(host='0.0.0.0', port=PORT, debug=False)
