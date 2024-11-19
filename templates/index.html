@@ -560,10 +560,10 @@
     <div class="content">
         <h1>{{ site_name }}</h1>
         <form id="upload-form" method="post" enctype="multipart/form-data">
-            <div id="drop-area" contenteditable="true">
-                <p>{{ lang.drop_files }}</p>
+            <div id="drop-area">
+                <p style="user-select: none;">{{ lang.drop_files }}</p>
                 <input type="file" id="file-input" name="file" accept="image/*" multiple>
-                <label for="file-input" id="upload-label">{{ lang.choose_file }}</label>
+                <label for="file-input" id="upload-label" style="user-select: none;">{{ lang.choose_file }}</label>
                 <div id="upload-progress" style="display: none;">
                     <div class="progress-bar">
                         <div class="progress"></div>
@@ -571,7 +571,6 @@
                     <p id="progress-text">{{ lang.upload_progress }} 0%</p>
                 </div>
             </div>
-            <input type="submit" value="{{ lang.upload }}">
         </form>
         
         {% if error %}
@@ -952,7 +951,7 @@
                 });
             });
 
-            // 点击页面其他地方关闭语言选择器
+            // 点击页面其他地方关闭语言选器
             document.addEventListener('click', function() {
                 languageSelector.classList.remove('active');
             });
